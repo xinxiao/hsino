@@ -138,9 +138,9 @@ class Stock:
 			COLLECTION.insert_one(info)
 
 		stock = COLLECTION.find({
-			'exchange' : self.exchange,
-			'ticker' : self.ticker
-		})[0]
+				'exchange' : self.exchange,
+				'ticker' : self.ticker
+			})[0]
 		
 		detail = stock['detail']
 		update = self.detail(period)
