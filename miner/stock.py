@@ -24,9 +24,10 @@ SOCKET = MongoClient('localhost', 27017)
 DB = SOCKET['Hsino']
 COLLECTION = DB['Stock']
 
-def main():
-	msft = Stock('NASDAQ', 'MSFT')
-	print msft.is_stored()
+LOCAL_TIME_OFFSET = -300
+
+def format(obj):
+	return str(json.dumps(obj, sort_keys = True, indent = 4))
 
 class Stock:
 	def __init__(self, exchange, ticker):
@@ -36,20 +37,21 @@ class Stock:
 		req = requests.get(INFO.format(exchange, ticker)).text
 		info = BeautifulSoup(req, 'html.parser')
 		
-		self.company = info.find_all(
+		self.company = str(
+				info.find_all(
 				'meta', 
 				{
 					'itemprop' : 'name'
 				}
-				)[0]['content'].replace('.', '')
-		self.location = info.find_all(
+				)[0]['content'].replace('.', ''))
+		self.location = str(info.find_all(
 				'meta',
                                 {
 					'itemprop' : 'exchangeTimezone'
 				}
-				)[0]['content'].replace('_', ' ')
-		self.currency = info.find_all('meta', 
-			  	{'itemprop' : 'priceCurrency'})[0]['content']
+				)[0]['content'].replace('_', ' '))
+		self.currency = str(info.find_all('meta', 
+			  	{'itemprop' : 'priceCurrency'})[0]['content'])
 	
 	def __repr__(self):
 		return format(self.info())
@@ -85,7 +87,11 @@ class Stock:
 		
 		index = 1 
 		header = {}
+		offset = 0
 		while detail[index][0] != 'a':
+			split = str(detail[index]).split('=')
+			if split[0] == 'TIMEZONE_OFFSET':
+				offset = 60 * (int(split[1]) - LOCAL_TIME_OFFSET)
 			index += 1
 		detail = detail[index:-1]
 		
@@ -99,8 +105,8 @@ class Stock:
 			split = split[1:]
 
 			if head[0] == 'a':
-				head = int(head[1:])
-				stamp = head 
+				head = int(head[1:]) + offset
+				stamp = head
 				date = datetime.fromtimestamp(
 					stamp
 				      ).strftime('%Y-%m-%d')
@@ -135,7 +141,6 @@ class Stock:
 			'exchange' : self.exchange,
 			'ticker' : self.ticker
 		})[0]
-		print stock	
 		
 		detail = stock['detail']
 		update = self.detail(period)
@@ -154,49 +159,39 @@ class Stock:
 
 		return result.modified_count > 0	
 
-#	def csv(self, period):
-#		detail = str(requests.get(
-#				PRICE.format(self.exchange,
-#				self.ticker, period)
-#			).text).split('\n')
-#
-#		index = 0
-#		while detail[index][0] != 'a':
-#			index += 1
-#		detail = detail[index:-1]
-#
-#		path = './data/{}.csv'.format(self.company)
-#		accessibility = 'a'
-#		if os.path.isfile(path):
-#			accessibility = 'w'
-#
-#		file = open(path, accessibility)
-#		file.write(HEAD)
-#
-#		stamp = 0
-#		date = ''		
-#		for index in range(len(detail)):
-#			file.write('\n')
-#			split = detail[index].split(',')
-#			head = split[0]
-#			split = split[1:]
-#			if head[0] == 'a':
-#				head = int(head[1:])
-#				stamp = head
-#				date = datetime.fromtimestamp(
-#						stamp
-#					).strftime('%Y-%m-%d')
-#			else:
-#				head = stamp + int(head) * INTERVAL
-#
-#			time = datetime.fromtimestamp(
-#                                        head
-#                                ).strftime('%H:%M')
-#
-#			file.write(date + ',' + 
-#				   time + ',' + 
-#				   ','.join(split))			
-#		file.close()
+	def csv(self, date):
+		path = './data/{}/{}.csv'
+		path = path.format(self.company, date)
+		
+		folder = os.path.dirname(path)
+		if not os.path.exists(folder):
+			os.makedirs(folder)
 
-if __name__ == '__main__':
-	main()
+		access = 'a'
+		if os.path.isfile(path):
+			access = 'w'
+		
+		file = open(path, access)
+			
+		stock = COLLECTION.find({
+                        	'exchange' : self.exchange,
+                        	'ticker' : self.ticker
+                	})[0]
+                detail = stock['detail'][date]
+			
+		file.write(HEAD)
+		
+		keys = detail.keys()
+		for i in range(len(keys)):
+			keys[i] = str(keys[i])
+		keys.sort()
+		
+		for time in keys:
+			file.write('\n')
+			line = range(len(COLUMNS))
+			info = detail[time]
+			for key in info:
+				line[COLUMNS[key]] = str(info[key])
+			line = [date, time] + line
+			file.write(','.join(line))
+		file.close()
