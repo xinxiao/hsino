@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from pymongo import MongoClient
+requests.packages.urllib3.disable_warnings()
 
 INTERVAL = 60
 GOOGLE_FINANCE = 'https://www.google.com/finance'
@@ -25,7 +26,7 @@ COLLECTION = DB['Stock']
 
 def main():
 	msft = Stock('NASDAQ', 'MSFT')
-	print msft.store(2)
+	print msft.is_stored()
 
 class Stock:
 	def __init__(self, exchange, ticker):
@@ -33,7 +34,7 @@ class Stock:
 		self.ticker = ticker
 		
 		req = requests.get(INFO.format(exchange, ticker)).text
-		info = BeautifulSoup(req, 'html5lib')
+		info = BeautifulSoup(req, 'html.parser')
 		
 		self.company = info.find_all(
 				'meta', 
