@@ -1,3 +1,14 @@
+# ---------------------------------------- #
+# Investment product Information Collector	
+# 
+# Author: Xiao Xin
+# Date: Dec. 20, 2015
+# ---------------------------------------- #
+
+
+'''
+	Import dependencies
+'''
 import os, sys
 import json
 import requests
@@ -6,11 +17,19 @@ from datetime import datetime
 from pymongo import MongoClient
 requests.packages.urllib3.disable_warnings()
 
+
+'''
+	Constants
+'''
+# The update interval of stock information
 INTERVAL = 60
+
+# Links to acquire information
 GOOGLE_FINANCE = 'https://www.google.com/finance'
 INFO = GOOGLE_FINANCE + '?q={}:{}' 
 PRICE = GOOGLE_FINANCE + '/getprices?x={}&q={}&i=60&p={}d&f=d,o,h,l,c,v'
 
+# Basic structure of .csv file
 COLUMNS = {
 		'CLOSE' : 0,
 		'HIGH' : 1,
@@ -20,16 +39,32 @@ COLUMNS = {
 	  }
 HEAD = 'DATE,TIME,CLOSE,HIGH,LOW,OPEN,VOLUME'
 
+# Connection to local mongo database
 SOCKET = MongoClient('localhost', 27017)
 DB = SOCKET['Hsino']
-COLLECTION = DB['Stock']
 
+# Time offset for local timezone, which is GMT-5:00
 LOCAL_TIME_OFFSET = -300
 
+
+'''
+	Static methods
+'''
+# Write a dictionary object to json format
 def format(obj):
 	return str(json.dumps(obj, sort_keys = True, indent = 4))
 
+
+'''
+	Stock information collector
+'''
 class Stock:
+	'''
+		In-class constant
+	'''
+	# Corresponding collection	
+	COLLECTION = DB['Stock']
+
 	def __init__(self, exchange, ticker):
 		self.exchange = exchange.upper()
 		self.ticker = ticker.upper()
@@ -91,7 +126,8 @@ class Stock:
 		while detail[index][0] != 'a':
 			split = str(detail[index]).split('=')
 			if split[0] == 'TIMEZONE_OFFSET':
-				offset = 60 * (int(split[1]) - LOCAL_TIME_OFFSET)
+				offset = int(split[1]) - LOCAL_TIME_OFFSET)
+				offset *= 60
 			index += 1
 		detail = detail[index:-1]
 		
@@ -168,7 +204,7 @@ class Stock:
 			return False
                 detail = stock['detail'][date]
 		
-		path = './../csv/{}/{}.csv'
+		path = '~/Hsino/csv/{}/{}.csv'
 		path = path.format(self.company, date)
 		
 		folder = os.path.dirname(path)
