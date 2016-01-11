@@ -169,7 +169,7 @@ class Stock:
 			
 			for i in range(len(split) - 1):				# Parse each numeric value
 				split[i] = float(split[i])
-			split[-1] = int(split[-1])
+			split[-1] = int(split[-1])			
 			
 			content = {}						# Put data into term
 			for key in COLUMNS:
