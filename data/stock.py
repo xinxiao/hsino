@@ -24,7 +24,7 @@ requests.packages.urllib3.disable_warnings()
 INTERVAL = 60
 
 # Links to acquire information
-GOOGLE_FINANCE = 'http://www.google.com/finance'
+GOOGLE_FINANCE = 'https://www.google.com/finance'
 INFO = GOOGLE_FINANCE + '?q={}:{}'
 PRICE = GOOGLE_FINANCE + '/getprices?x={}&q={}&i=60&p={}d&f=d,o,h,l,c,v'
 
@@ -267,4 +267,3 @@ class Stock:
 		file.close()							# Close file
 		return True							# Return True for file has been
 										# successfully generated
-
