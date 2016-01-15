@@ -268,8 +268,3 @@ class Stock:
 		return True							# Return True for file has been
 										# successfully generated
 
-def main():
-	msft = Stock('NASDAQ', 'MSFT')
-	msft.store(15)
-
-main()
