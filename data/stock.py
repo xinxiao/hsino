@@ -17,7 +17,6 @@ from datetime import datetime
 from pymongo import MongoClient
 requests.packages.urllib3.disable_warnings()
 
-
 '''
 	Constants
 '''
@@ -25,7 +24,7 @@ requests.packages.urllib3.disable_warnings()
 INTERVAL = 60
 
 # Links to acquire information
-GOOGLE_FINANCE = 'https://www.google.com/finance'
+GOOGLE_FINANCE = 'http://www.google.com/finance'
 INFO = GOOGLE_FINANCE + '?q={}:{}'
 PRICE = GOOGLE_FINANCE + '/getprices?x={}&q={}&i=60&p={}d&f=d,o,h,l,c,v'
 
@@ -42,6 +41,7 @@ HEAD = 'DATE,TIME,CLOSE,HIGH,LOW,OPEN,VOLUME'
 # Connection to local mongo database
 SOCKET = MongoClient('localhost', 27017)
 DB = SOCKET['Hsino']
+COLLECTION = DB['Stock']
 
 # Time offset for local timezone, which is GMT-5:00
 LOCAL_TIME_OFFSET = -300
@@ -63,7 +63,7 @@ class Stock:
 		In-class constant
 	'''
 	# Corresponding collection	
-	COLLECTION = DB['Stock']
+	# COLLECTION = DB['Stock']
 
 	# Constructor
 	def __init__(self, exchange, ticker):
@@ -127,7 +127,8 @@ class Stock:
 		# Request trading data
 		detail = str(requests.get(
 				PRICE.format(self.exchange,
-					     self.ticker, period)
+					     self.ticker, period),
+				verify = False 
 			  ).text).split('\n')
 		
 		# Processing the header of the request	
@@ -185,12 +186,16 @@ class Stock:
 			return False, None					# Return false and nothing if the stock
 										# has not been stored
 
-		stock = COLLECTION.find({
+		data = COLLECTION.find({
                                 'exchange' : self.exchange,
                                 'ticker' : self.ticker
-                        })[0]                                                   # Find the stored part of the stock
+                        })[0]['detail']						# Find the stored part of the stock
 		
-		return True, stock						# Return true as result and stock data
+		if date not in data:
+			return False, None					# Return false if the data of a certain day
+										# has not been stored
+
+		return True, data[date]						# Return true as result and stock data
 	
 	# Save the trading data of given recent days
 	def store(self, period):
@@ -204,7 +209,7 @@ class Stock:
 				'exchange' : self.exchange,
 				'ticker' : self.ticker
 			})[0]							# Find the stored part of the stock
-		
+		print stock	
 		detail = stock['detail']
 		update = self.detail(period)					# Acquire the data that needs storing
 
@@ -224,21 +229,11 @@ class Stock:
 	#
 	# Return if the file has been generated 
 	def csv(self, date):
-		if not self.has_stored():
-			return False						# Return False if 
-										# the stock had not been stored
-
-		stock = COLLECTION.find({
-                        	'exchange' : self.exchange,
-                        	'ticker' : self.ticker
-                	})[0]							# Find the stock in database
-
-		if not date in stock['detail']:
-			return False						# Return False if the data of the 
-										# specific date is not in database
-                
-		detail = stock['detail'][date]					# Find the data of the date
+		found, detail = self.find(date)					# Check if the stock info has been stored
 		
+		if not found:
+			return False						# Terminate if no data were found
+ 
 		path = '~/Hsino/csv/{}/{}.csv'					# Set the path of file
 		path = path.format(self.company, date)
 		
@@ -272,3 +267,9 @@ class Stock:
 		file.close()							# Close file
 		return True							# Return True for file has been
 										# successfully generated
+
+def main():
+	msft = Stock('NASDAQ', 'MSFT')
+	msft.store(15)
+
+main()
