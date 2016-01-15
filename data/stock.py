@@ -180,6 +180,18 @@ class Stock:
 
 		return result
 	
+	def find(self, date):
+		if not self.has_stored():
+			return False, None					# Return false and nothing if the stock
+										# has not been stored
+
+		stock = COLLECTION.find({
+                                'exchange' : self.exchange,
+                                'ticker' : self.ticker
+                        })[0]                                                   # Find the stored part of the stock
+		
+		return True, stock						# Return true as result and stock data
+	
 	# Save the trading data of given recent days
 	def store(self, period):
 		# Check if the stock had been previously stored in database
