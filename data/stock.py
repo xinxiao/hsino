@@ -24,7 +24,7 @@ requests.packages.urllib3.disable_warnings()
 INTERVAL = 60
 
 # Links to acquire information
-GOOGLE_FINANCE = 'https://www.google.com/finance'
+GOOGLE_FINANCE = 'http://www.google.com/finance'
 INFO = GOOGLE_FINANCE + '?q={}:{}'
 PRICE = GOOGLE_FINANCE + '/getprices?x={}&q={}&i=60&p={}d&f=d,o,h,l,c,v'
 
@@ -183,8 +183,8 @@ class Stock:
 	
 	def find(self, date):
 		if not self.has_stored():
-			return False, None					# Return false and nothing if the stock
-										# has not been stored
+			return False, None					# Return false and nothing if 
+										# the stock has not been stored
 
 		data = COLLECTION.find({
                                 'exchange' : self.exchange,
@@ -192,8 +192,8 @@ class Stock:
                         })[0]['detail']						# Find the stored part of the stock
 		
 		if date not in data:
-			return False, None					# Return false if the data of a certain day
-										# has not been stored
+			return False, None					# Return false if the data of 
+										# a certain day has not been stored
 
 		return True, data[date]						# Return true as result and stock data
 	
@@ -209,7 +209,7 @@ class Stock:
 				'exchange' : self.exchange,
 				'ticker' : self.ticker
 			})[0]							# Find the stored part of the stock
-		print stock	
+		
 		detail = stock['detail']
 		update = self.detail(period)					# Acquire the data that needs storing
 
@@ -229,7 +229,8 @@ class Stock:
 	#
 	# Return if the file has been generated 
 	def csv(self, date):
-		found, detail = self.find(date)					# Check if the stock info has been stored
+		found, detail = self.find(date)					# Check if the stock data 
+										# has been stored
 		
 		if not found:
 			return False						# Terminate if no data were found
