@@ -10,7 +10,6 @@
 	Import dependencies
 '''
 import os, sys
-import json
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -47,15 +46,6 @@ COLLECTION = DB['Stock']
 
 # Time offset for local timezone, which is GMT-5:00
 LOCAL_TIME_OFFSET = -300
-
-
-'''
-	Static methods
-'''
-# Write a dictionary object to json format
-def format(obj):
-	return str(json.dumps(obj, sort_keys = True, indent = 4))
-
 
 '''
 	Stock information collector
@@ -98,7 +88,11 @@ class Stock:
 	
 	# Representation
 	def __repr__(self):
-		return format(self.info())
+		info = self.info()						# Get info package
+		result = []
+		for field in info:
+			result += ["{}: {}".format(field, info[field])]		# Put each field in format
+		return '\n'.join(result)					# Put info in paragraph
 
 	# Check if the stock has been stored in local database
 	def has_stored(self):
