@@ -125,11 +125,10 @@ class Stock:
 				PRICE.format(self.exchange,
 					     self.ticker, period),
 				verify = False 
-			  ).text).split('\n')
+			  ).text).split('\n')[:-1]
 		
 		# Processing the header of the request	
 		index = 1 
-		header = {}
 		offset = 0
 		while detail[index][0] != 'a':					# Loop to data
 			split = str(detail[index]).split('=')
@@ -137,7 +136,9 @@ class Stock:
 				offset = int(split[1]) - LOCAL_TIME_OFFSET
 				offset *= 60
 			index += 1
-		detail = detail[index:-1]					# Cut off header
+			if index >= len(detail):
+				return {}					# Terminate if no data can be found
+		detail = detail[index:]						# Cut off header
 		
 		# Processing actual data
 		index = 0
