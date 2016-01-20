@@ -34,7 +34,9 @@ COLUMNS = {
 		'HIGH' : 1,
 		'LOW' : 2,
 		'OPEN' : 3,
-		'VOLUME' : 4
+		'VOLUME' : 4,
+		'PRICE CHANGE' : 5,
+		'VOLUME CHANGE' : 6
 	  }
 HEAD = 'DATE,TIME,CLOSE,HIGH,LOW,OPEN,VOLUME'
 
@@ -147,12 +149,13 @@ class Stock:
 		index = 0
 		stamp = 0
 		date = ''
+		previous_volume = 0
 		result = {}
 		while index < len(detail):					# Loop to end
 			split = detail[index].split(',')			# Split terms
 			head = split[0]						# Get the first term
 			split = split[1:]					# Save the rest
-			
+	
 			# Check if a new date stamp appears	
 			if head[0] == 'a':					# If a new date stamp were found
 				head = int(head[1:]) + offset			# Parse date stamp; add time offset
@@ -160,6 +163,7 @@ class Stock:
 				date = datetime.fromtimestamp(
 						stamp
 					).strftime('%Y-%m-%d')			# Put date in proper format
+				previous_volume = int(split[-1])		# Set initial previous volume
 				result[date] = {}				# Set field in result for this dat
 			else:							# If no new date stamp were found
 				head = stamp + int(head) * INTERVAL		# Calculate exact timestamp
@@ -172,6 +176,17 @@ class Stock:
 				split[i] = float(split[i])
 			split[-1] = int(split[-1])			
 			
+			open_price = split[COLUMNS['OPEN']]
+			close_price = split[COLUMNS['CLOSE']]
+			price_change = (close_price / open_price - 1) * 100	# Calculate the price change
+			
+			volume = split[COLUMNS['VOLUME']]
+			volume_change = float(volume) / float(previous_volume)
+			volume_change = 100 * (volume_change - 1)		# Calculate volume change 
+			previous_volume = volume				# Reset previous volume
+			
+			split += [price_change, volume_change]			# Save calculated value in line
+
 			content = {}						# Put data into term
 			for key in COLUMNS:
 				content[key] = split[COLUMNS[key]]
