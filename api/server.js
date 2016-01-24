@@ -66,7 +66,9 @@ app.param('date', function(req, res, next, date){
 // Return the general information o fthe stock
 //
 // Method: GET
-// Parameter: Exchange, Ticker, 
+// Parameter: Exchange, Ticker
+//
+// Reminder: Exchange, Ticker shall be capitalized
 app.get('/:exchange/:ticker', function(req, res){
 	var search = {
 			exchange : req.exchange,
@@ -93,6 +95,9 @@ app.get('/:exchange/:ticker', function(req, res){
 // 
 // Method: POST
 // Parameter: Exchange, Ticker, Date
+//
+// Reminder: Exchange, Ticker shall be capitalized; 
+// 	     Date shall be in the format of 'YYYY-MM-DD'
 app.post('/:exchange/:ticker/:date', function(req, res){
 	var search = {
 			exchange : req.exchange,
