@@ -1,0 +1,26 @@
+{
+  "name": "hsino",
+  "version": "0.0.1",
+  "description": "hsino project api",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xinxiao/Hsino.git"
+  },
+  "keywords": [
+    "finance",
+    "volume",
+    "high",
+    "frequent"
+  ],
+  "author": "Xiao Xin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xinxiao/Hsino/issues"
+  },
+  "homepage": "https://github.com/xinxiao/Hsino#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "mongoose": "^4.3.7"
+  }
+}

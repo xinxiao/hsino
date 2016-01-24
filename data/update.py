@@ -24,7 +24,7 @@ def update(period):
 		for ticker in PORTFOLIO[exchange]:
 			stock = Stock(exchange, ticker)
 			stock.store(period)
-
+			print stock
 def main():
 	update(15)
 

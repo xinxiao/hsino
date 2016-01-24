@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Investment Product Information Collector	
+# Hsino Fianacial Information Collector	
 # 
 # Author: Xiao Xin
 # Date: Dec. 20, 2015
@@ -42,7 +42,6 @@ HEAD = 'DATE,TIME,CLOSE,HIGH,LOW,OPEN,VOLUME'
 # Connection to local mongo database
 SOCKET = MongoClient('localhost', 27017)
 DB = SOCKET['Hsino']
-COLLECTION = DB['Stock']
 
 # Time offset for local timezone, which is GMT-5:00
 LOCAL_TIME_OFFSET = -300
@@ -55,7 +54,7 @@ class Stock:
 		In-class constant
 	'''
 	# Corresponding collection	
-	# COLLECTION = DB['Stock']
+	COLLECTION = DB['Stock']
 
 	# Constructor
 	def __init__(self, exchange, ticker):
@@ -81,7 +80,7 @@ class Stock:
                                 {
 					'itemprop' : 'exchangeTimezone'
 				}
-				)[0]['content'].replace('_', ' '))		# Find the location of the exchange
+				)[0]['content'].replace('_', ' '))		# Find the location of exchange
 		self.currency = str(info.find_all('meta', 
 			  	{'itemprop' : 'priceCurrency'}
 				)[0]['content'])				# Find out the pricing currency
@@ -101,7 +100,7 @@ class Stock:
                         	'ticker' : self.ticker
                 	 })							# Look for stock in database
 		
-		return cursor.count() > 0					# Return true if stock were found	
+		return cursor.count() > 0					# Return true if stock were found
 	# Return a dictionary of  the general information of the stock
 	def info(self):
 		stock = {
@@ -137,7 +136,7 @@ class Stock:
 				offset *= 60
 			index += 1
 			if index >= len(detail):
-				return {}					# Terminate if no data can be found
+				return {}					# Terminate if no data were found
 		detail = detail[index:]						# Cut off header
 		
 		# Processing actual data
@@ -153,7 +152,9 @@ class Stock:
 	
 			# Check if a new date stamp appears	
 			if head[0] == 'a':					# If a new date stamp were found
-				head = int(head[1:]) + offset			# Parse date stamp; add time offset
+				head = int(head[1:]) + offset			# Parse date stamp;
+										# add time offset
+
 				stamp = head					# Reset date stamp
 				date = datetime.fromtimestamp(
 						stamp
@@ -165,7 +166,7 @@ class Stock:
 
 			time = datetime.fromtimestamp(
 					head
-				).strftime('%H:%M')				# Calculate the time when data occurs
+				).strftime('%H:%M')				# Calculate when data appears
 			
 			for i in range(len(split) - 1):				# Parse each numeric value
 				split[i] = float(split[i])
@@ -186,26 +187,10 @@ class Stock:
 			for key in COLUMNS:
 				content[key] = split[COLUMNS[key]]
 
-			result[date][time] = content				# Save the data for the time point 
+			result[date][time] = content				# Save the data at the time point 
 			index += 1
 
 		return result
-	
-	def find(self, date):
-		if not self.has_stored():
-			return False, None					# Return false and nothing if 
-										# the stock has not been stored
-
-		data = COLLECTION.find({
-                                'exchange' : self.exchange,
-                                'ticker' : self.ticker
-                        })[0]['detail']						# Find the stored part of the stock
-		
-		if date not in data:
-			return False, None					# Return false if the data of 
-										# a certain day has not been stored
-
-		return True, data[date]						# Return true as result and stock data
 	
 	# Save the trading data of given recent days
 	def store(self, period):
@@ -218,10 +203,10 @@ class Stock:
 		stock = COLLECTION.find({
 				'exchange' : self.exchange,
 				'ticker' : self.ticker
-			})[0]							# Find the stored part of the stock
+			})[0]							# Find the stored stock
 		
 		detail = stock['detail']
-		update = self.detail(period)					# Acquire the data that needs storing
+		update = self.detail(period)					# Find the updating portion 
 
 		for key in update:
 			detail[key] = update[key]				# Update the info of each day
@@ -233,48 +218,5 @@ class Stock:
 
 			},
 			{ '$set' : { 'detail' : detail } },
-		)								# Put the data in database
+		)								# Store the data in database
 
-	# Export trading data of a given date to .csv file
-	#
-	# Return if the file has been generated 
-	def csv(self, date):
-		found, detail = self.find(date)					# Check if the stock data 
-										# has been stored
-		
-		if not found:
-			return False						# Terminate if no data were found
- 
-		path = '~/Hsino/csv/{}/{}.csv'					# Set the path of file
-		path = path.format(self.company, date)
-		
-		folder = os.path.dirname(path)					# Check if directories on path exists
-		if not os.path.exists(folder):
-			os.makedirs(folder)					# Make directories if needed
-
-		access = 'a'							# Set initial accessibility to append
-		if os.path.isfile(path):
-			access = 'w'						# Update the file if files exists
-		
-		file = open(path, access)					# Open file
-
-		file.write(HEAD)						# Write head of .csv file
-		
-		keys = detail.keys()
-		for i in range(len(keys)):
-			keys[i] = str(keys[i])
-		keys.sort()							# Sort the trading data by time
-		
-		for time in keys:						# Write data of every minute to file
-			file.write('\n')					# Switch line at the begining
-										# in case new line at very end
-			line = range(len(COLUMNS))				# Prepare to combine data components
-			info = detail[time]					# Get data at time point
-			for key in info:
-				line[COLUMNS[key]] = str(info[key])		# Put each field in position
-			line = [date, time] + line				# Add date and time
-			file.write(','.join(line))				# Join the conponents by comma, 
-										# and write to file
-		file.close()							# Close file
-		return True							# Return True for file has been
-										# successfully generated
