@@ -197,7 +197,7 @@ class Stock:
 		if not self.has_stored():					# If the stock has not been stored
 			info = self.info()					# Create stock general info header
 			info['detail'] = {}
-			Stock.COLLECTION.insert_one(info)				# Insert stock info into database 
+			Stock.COLLECTION.insert_one(info)			# Insert stock info into database 
 
 		stock = Stock.COLLECTION.find({
 				'exchange' : self.exchange,
