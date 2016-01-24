@@ -13,9 +13,9 @@ This interface is designed under the concept of "read-only" RESTful. Users are g
 ### Methods and parameters
 - GET: exchange/ticker
 	- Return the following information of the stock
-		- Name of the company who issues the stock
- 		- Location of the exchange
- 		- Currency in which the stock trades
+		* Name of the company who issues the stock
+ 		* Location of the exchange
+ 		* Currency in which the stock trades
 - POST: exchange/ticker/date
 	- Return the minutely trading data of the stock on the given date only if the trading data is stored in local database
 	
