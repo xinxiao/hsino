@@ -1,9 +1,9 @@
 # Hsino
 
 ### Introduction
-Hsino is an intergrated object that dedicats in observing the correlations between the price and the trading volume of the stocks
+Hsino is an intergrated object that dedicates in observing the correlations between the price and the trading volume of the stocks
 
-### Contains
+### Components
 - Data collector written in Python
 - API for data exchanging written in JavaScript
 - Research report
@@ -12,3 +12,4 @@ Hsino is an intergrated object that dedicats in observing the correlations betwe
 - [x]	Data scraping
 - [x]	API for data exchanging
 - [ ]	Data analysis
+- [ ]	Report write-up

@@ -1,4 +1,4 @@
-from stock import Stock
+from product import Stock
 
 PORTFOLIO = {
 	    	'SHA' : [],

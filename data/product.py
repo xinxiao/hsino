@@ -99,6 +99,7 @@ class Stock:
                 	 })							# Look for stock in database
 		
 		return cursor.count() > 0					# Return true if stock were found
+
 	# Return a dictionary of  the general information of the stock
 	def info(self):
 		stock = {
