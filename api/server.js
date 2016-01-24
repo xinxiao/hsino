@@ -110,6 +110,10 @@ app.post('/:exchange/:ticker/:date', function(req, res){
 			res.send(err);						// Report error
 
 		data = stock['detail'][date];					// Find data of the particular day
+		notify = "The data of %s on %s in %s is requested"
+		console.log(notify, stock['company'], 
+				    stock['exchange'],
+				    req.date);					// Log the user of the service
 		res.json(data);							// Send out data
 	});
 });
