@@ -9,7 +9,6 @@
 '''
 	Import dependencies
 '''
-import os, sys
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -27,7 +26,7 @@ GOOGLE_FINANCE = 'http://www.google.com/finance'
 INFO = GOOGLE_FINANCE + '?q={}:{}'
 PRICE = GOOGLE_FINANCE + '/getprices?x={}&q={}&i=60&p={}d&f=d,o,h,l,c,v'
 
-# Basic structure of .csv file
+# Basic structure of data
 COLUMNS = {
 		'CLOSE' : 0,
 		'HIGH' : 1,
@@ -37,7 +36,6 @@ COLUMNS = {
 		'PRICE CHANGE' : 5,
 		'VOLUME CHANGE' : 6
 	  }
-HEAD = 'DATE,TIME,CLOSE,HIGH,LOW,OPEN,VOLUME'
 
 # Connection to local mongo database
 SOCKET = MongoClient('localhost', 27017)
