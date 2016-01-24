@@ -9,7 +9,7 @@ Hsino is an intergrated project of finance, mathematics, and computer science. T
 - Data analysis conducted in Python
 - Research report
 
-### Technology Used
+### Technology Involved
 - Python
 - Node.JS
 - MongoDB
