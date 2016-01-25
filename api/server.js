@@ -63,7 +63,7 @@ app.param('date', function(req, res, next, date){
 	Set up service
 */
 
-// Return the general information o fthe stock
+// Return the general information of the stock
 //
 // Method: GET
 // Parameter: Exchange, Ticker
