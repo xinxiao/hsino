@@ -1,4 +1,6 @@
 from product import Stock
+from datetime import datetime
+import time 
 
 PORTFOLIO = {
 	    	'SHA' : [],
@@ -24,9 +26,16 @@ def update(period):
 		for ticker in PORTFOLIO[exchange]:
 			stock = Stock(exchange, ticker)
 			stock.store(period)
-			print stock
+	log = open('/home/xinx/Hsino/data/collect.log','a')
+	update_time = str(datetime.now())[:19]
+	info = 'The database is updated at {}\n'.format(update_time)
+	log.write(info)
+	log.close()
+
 def main():
-	update(15)
+	while True:
+		update(1)
+		time.sleep(7200)
 
 if __name__ == '__main__':
 	main()
