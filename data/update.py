@@ -22,20 +22,30 @@ PORTFOLIO = {
 	    }
 
 def update(period):
+	start_time = datetime.now()
+
 	for exchange in PORTFOLIO:
 		for ticker in PORTFOLIO[exchange]:
 			stock = Stock(exchange, ticker)
 			stock.store(period)
+
+	finished_time = datetime.now()
+	
 	log = open('/home/xinx/Hsino/data/collect.log','a')
-	update_time = str(datetime.now())[:19]
-	info = 'The database is updated at {}\n'.format(update_time)
-	log.write(info)
+	update_log = 'Database update - start:{}  end:{} \n'
+	update_log = update_log.format(str(start_time)[:19],
+				       str(finished_time)[:19])
+	log.write(update_log)
 	log.close()
+
+	time_taken = (finished_time - start_time).seconds
+	return time_taken
 
 def main():
 	while True:
-		update(1)
-		time.sleep(7200)
+		time_taken = update(1)
+		sleep_time = 3600 - time_taken
+		time.sleep(sleep_time)
 
 if __name__ == '__main__':
 	main()
