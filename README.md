@@ -17,5 +17,5 @@ Hsino is an intergrated project of finance, mathematics, and computer science. T
 #### Milestones
 - [x]	Data scraping
 - [x]	API for data exchanging
-- [ ]	Data analysis
-- [ ]	Report write-up
+- [x]	Data analysis
+- [x]	Report write-up
